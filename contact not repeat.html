@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Form</title>
+    <link rel="website icon" type="image/png" href="firefox-aurora.png">
+    <link rel="stylesheet" href="contact.css">
+
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <script type="text/javascript">
+        // Initialize EmailJS
+        (function(){
+            emailjs.init({
+                publicKey: "_CZVCRxim9zpY5WgA", // Your actual EmailJS public key
+            });
+        })();
+    </script>
+</head>
+<body>
+    <div class="container">
+        <form id="contact-form">
+            <h3>GET IN TOUCH</h3>
+            <input type="text" id="name" name="name" placeholder="Your Name" required>
+            <input type="email" id="email" name="email_id" placeholder="Email id" required>
+            <input type="text" id="phone" name="phone" placeholder="Phone no." required>
+            <textarea id="message" name="message" rows="4" placeholder="How can we help you?" required></textarea>
+            <button type="submit">Send</button>
+        </form>
+    </div>
+
+     <script>
+        // --- CONFIGURATION ---
+        const serviceID = 'service_q2l0taw';      // Paste your Service ID here
+        const templateID = 'template_p6j9wqg';     // Paste your Template ID here
+        const publicKey = '_CZVCRxim9zpY5WgA';      // Paste your Public Key here
+        // ---------------------
+
+        const contactForm = document.getElementById('contact-form');
+        const submitButton = contactForm.querySelector('button[type="submit"]');
+        const submittedFlag = 'contactFormSubmitted';
+
+        // Function to disable the form
+        function disableForm() {
+            submitButton.disabled = true;
+            submitButton.textContent = 'Submitted successfully';
+        }
+
+        // 1. CHECK ON PAGE LOAD: See if the user has already submitted the form
+        document.addEventListener('DOMContentLoaded', function() {
+            if (localStorage.getItem(submittedFlag) === 'true') {
+                disableForm();
+                console.log('Form was previously submitted and is disabled.');
+            }
+        });
+
+        // Initialize EmailJS
+        emailjs.init({ publicKey: publicKey });
+
+        // 2. HANDLE FORM SUBMISSION
+        contactForm.addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevents the default form submission
+
+            // Disable the button immediately to prevent double clicks
+            submitButton.disabled = true;
+            submitButton.textContent = 'Sending...';
+
+            // Send the email using EmailJS
+            emailjs.sendForm(serviceID, templateID, this)
+                .then(() => {
+                    // On SUCCESS:
+                    alert('Message Sent Successfully!');
+                    contactForm.reset();
+
+                    // 3. SAVE TO LOCAL STORAGE: Remember that the submission was successful
+                    localStorage.setItem(submittedFlag, 'true');
+                    
+                    // Keep the form disabled
+                    disableForm();
+
+                }, (err) => {
+                    // On FAILURE:
+                    alert('Failed to send message. Error: ' + JSON.stringify(err));
+                    
+                    // Re-enable the button so the user can try again
+                    submitButton.disabled = false;
+                    submitButton.textContent = 'Send';
+                });
+        });
+    </script>
+</body>
+</html>
